@@ -27,9 +27,9 @@ type elasticRepository struct {
 }
 
 type productDocument struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Price       string `json:"price"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
 }
 
 func NewElasticRepository(url string) (Repository, error) {
@@ -41,7 +41,7 @@ func NewElasticRepository(url string) (Repository, error) {
 		return nil, err
 	}
 
-	return &elasticRepository(client), nil
+	return &elasticRepository{client}, nil
 }
 
 func (r *elasticRepository) Close() {
@@ -63,7 +63,7 @@ func (r *elasticRepository) PutProduct(ctx context.Context, p Product) error {
 }
 
 func (r *elasticRepository) GetProductByID(ctx context.Context, id string) (*Product, error) {
-	res, err := r.client.Index().
+	res, err := r.client.Get().
 		Index("catalog").
 		Type("product").
 		Id(id).
@@ -110,10 +110,10 @@ func (r *elasticRepository) ListProducts(ctx context.Context, skip uint64, take 
 		p := productDocument{}
 		if err = json.Unmarshal(*hit.Source, &p); err == nil {
 			products = append(products, Product{
-				ID: hit.Id,
-				Name: p.Name,
+				ID:          hit.Id,
+				Name:        p.Name,
 				Description: p.Description,
-				Price: p.Price,
+				Price:       p.Price,
 			})
 		}
 	}
@@ -122,9 +122,9 @@ func (r *elasticRepository) ListProducts(ctx context.Context, skip uint64, take 
 
 func (r *elasticRepository) ListProductsWithIDs(ctx context.Context, ids []string) ([]Product, error) {
 	items := []*elastic.MultiGetItem{}
-	for _,id := range ids {
+	for _, id := range ids {
 		items = append(
-			items, 
+			items,
 			elastic.NewMultiGetItem().
 				Index("catalog").
 				Type("product").
@@ -132,10 +132,10 @@ func (r *elasticRepository) ListProductsWithIDs(ctx context.Context, ids []strin
 		)
 	}
 
-	res, err := client.MultiGet().
+	res, err := r.client.MultiGet().
 		Add(items...).
 		Do(ctx)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -146,10 +146,10 @@ func (r *elasticRepository) ListProductsWithIDs(ctx context.Context, ids []strin
 		p := productDocument{}
 		if err = json.Unmarshal(*doc.Source, &p); err == nil {
 			products = append(products, Product{
-				ID: doc.Id,
-				Name: p.Name,
+				ID:          doc.Id,
+				Name:        p.Name,
 				Description: p.Description,
-				Price: p.Price,
+				Price:       p.Price,
 			})
 		}
 	}
@@ -176,10 +176,10 @@ func (r *elasticRepository) SearchProducts(ctx context.Context, query string, sk
 		p := productDocument{}
 		if err = json.Unmarshal(*hit.Source, &p); err == nil {
 			products = append(products, Product{
-				ID: hit.Id,
-				Name: p.Name,
+				ID:          hit.Id,
+				Name:        p.Name,
 				Description: p.Description,
-				Price: p.Price,
+				Price:       p.Price,
 			})
 		}
 	}

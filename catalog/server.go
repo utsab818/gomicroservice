@@ -13,7 +13,7 @@ import (
 )
 
 type grpcServer struct {
-	pb.UnimplementedAccountServiceServer
+	pb.UnimplementedCatalogServiceServer
 	service Service
 }
 
@@ -23,8 +23,8 @@ func ListenGRPC(s Service, port int) error {
 		return err
 	}
 	serv := grpc.NewServer()
-	pb.RegisterAccountServiceServer(serv, &grpcServer{
-		UnimplementedAccountServiceServer: pb.UnimplementedAccountServiceServer{},
+	pb.RegisterCatalogServiceServer(serv, &grpcServer{
+		UnimplementedCatalogServiceServer: pb.UnimplementedCatalogServiceServer{},
 		service:                           s,
 	})
 	reflection.Register(serv)
@@ -39,10 +39,10 @@ func (s *grpcServer) PostProduct(ctx context.Context, r *pb.PostProductRequest) 
 	}
 
 	return &pb.PostProductResponse{Product: &pb.Product{
-		Id: p.ID,
-		Name: p.Name,
+		Id:          p.ID,
+		Name:        p.Name,
 		Description: p.Description,
-		Price: p.Price,
+		Price:       p.Price,
 	}}, nil
 }
 
@@ -54,10 +54,10 @@ func (s *grpcServer) GetProduct(ctx context.Context, r *pb.GetProductRequest) (*
 	}
 
 	return &pb.GetProductResponse{Product: &pb.Product{
-		Id: p.ID,
-		Name: p.Name,
+		Id:          p.ID,
+		Name:        p.Name,
 		Description: p.Description,
-		Price: p.Price,
+		Price:       p.Price,
 	}}, nil
 }
 
@@ -65,7 +65,7 @@ func (s *grpcServer) GetProducts(ctx context.Context, r *pb.GetProductsRequest) 
 	var res []Product
 	var err error
 
-	if r.Query != ""{
+	if r.Query != "" {
 		res, err = s.service.SearchProducts(ctx, r.Query, r.Skip, r.Take)
 	} else if len(r.Ids) != 0 {
 		res, err = s.service.GetProductsByIDs(ctx, r.Ids)
@@ -78,14 +78,14 @@ func (s *grpcServer) GetProducts(ctx context.Context, r *pb.GetProductsRequest) 
 		return nil, err
 	}
 
-	products := *pb.Product{}
+	products := []*pb.Product{}
 	for _, p := range res {
 		products = append(products, &pb.Product{
-			Id: p.ID,
-			Name: p.Name,
-			Descrition: p.Description,	
-			Price: p.Price,
-		},)
+			Id:         p.ID,
+			Name:       p.Name,
+			Description: p.Description,
+			Price:      p.Price,
+		})
 	}
 	return &pb.GetProductsResponse{
 		Products: products,
