@@ -67,7 +67,7 @@ func (r *postgresRepository) PutOrder(ctx context.Context, o Order) error {
 
 	stmt, _ := tx.PrepareContext(ctx, pq.CopyIn("order_products", "order_id", "product_id", "quantity"))
 	for _, p := range o.Products {
-		_, err = stmt.ExecContext(ctx, o.ID, p.ID, p.quantity)
+		_, err = stmt.ExecContext(ctx, o.ID, p.ID, p.Quantity)
 		if err != nil {
 			return err
 		}
@@ -100,6 +100,7 @@ func (r *postgresRepository) GetOrdersForAccount(ctx context.Context, accountID 
 		return nil, err
 	}
 	defer rows.Close()
+	// order := &Order{}
 	orders := []Order{}
 	lastOrder := &Order{}
 	orderedProduct := &OrderedProduct{}
