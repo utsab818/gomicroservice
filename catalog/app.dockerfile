@@ -1,6 +1,6 @@
-FROM golang:1.22.5-alpine3.11 AS build
+FROM golang:1.13-alpine3.11 AS build
 RUN apk --no-cache add gcc g++ make ca-certificates
-WORKDIR /go/src/github.com/utsab818/gomicroservice
+WORKDIR /go/src/github.com/utsab818/go
 COPY go.mod go.sum ./
 COPY vendor vendor
 COPY catalog catalog

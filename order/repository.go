@@ -100,8 +100,8 @@ func (r *postgresRepository) GetOrdersForAccount(ctx context.Context, accountID 
 		return nil, err
 	}
 	defer rows.Close()
-	// order := &Order{}
 	orders := []Order{}
+	order := &Order{}
 	lastOrder := &Order{}
 	orderedProduct := &OrderedProduct{}
 	products := []OrderedProduct{}
